@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using ScriptedAnimation;
 
 namespace Idol
 {
@@ -11,16 +12,27 @@ namespace Idol
         public Text NameText;
         public Image IdolImage;
         [Header("Main Properties")]
-        public Text VocalText, DanceText, VisualText, VarietyText;
+        public Text VocalText;
+        public Text DanceText, VisualText, VarietyText;
         public Slider VocalSlider, DanceSlider, VisualSlider, VarietySlider;
         [Header("Sub Properties")]
-        public Text CostText, HonorText, FanText, PersonaText;
+        public Text CostText;
+        public Text HonorText, FanText, PersonaText;
+        [Header("Animating")]
+        public ScriptAnimation Motion;
+
         [HideInInspector]
-        private IdolData linkedIdol;
+        public IdolData LinkedIdol;
+
+        private void OnEnable()
+        {
+            if(Motion != null)
+                Motion.Appear();
+        }
 
         public void SetIdol(IdolData data)
         {
-            linkedIdol = data;
+            LinkedIdol = data;
 
             CostText.text = data.Cost.ToString();
             NameText.text = data.Name;

@@ -48,6 +48,12 @@ namespace Ingame
             Idols.Clear();
         }
 
+        public void EraseSong()
+        {
+            Song = null;
+            Idols.Clear();
+        }
+
         public float CalculateAppeal()
         {
             return 0;
