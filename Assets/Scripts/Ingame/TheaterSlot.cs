@@ -10,19 +10,14 @@ namespace Ingame
     public class TheaterSlot : MonoBehaviour
     {
         public bool SongAssigned { get { return Song != null; } }
-        public bool IdolAssigned { get { return Idols.Count > 0; } }
+        public bool IdolAssigned { get { return Slot != null && Slot.Idols.Length > 0; } }
 
         public Text StatusText, SongNameText, MaxIdolText;
 
         [HideInInspector]
         public SongData Song;
         [HideInInspector]
-        public List<IdolData> Idols;
-
-        private void Awake()
-        {
-            Idols = new List<IdolData>();
-        }
+        public IdolPickGroup Slot;
 
         void Start()
         {
@@ -45,13 +40,13 @@ namespace Ingame
         public void SetSong(SongData data)
         {
             Song = data;
-            Idols.Clear();
+            Slot = new IdolPickGroup(Song.MaxIdol);
         }
 
         public void EraseSong()
         {
             Song = null;
-            Idols.Clear();
+            Slot = null;
         }
 
         public float CalculateAppeal()

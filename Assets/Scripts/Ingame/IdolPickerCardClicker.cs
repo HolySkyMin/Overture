@@ -33,13 +33,8 @@ namespace Ingame
             else
             {
                 var pickRes = IdolPicker.Instance.TryPick(GetComponent<IdolCard>().LinkedIdol);
-                if(pickRes.Item1 == true)
-                {
-                    PickedEffect.SetActive(true);
-                    pickNumber = pickRes.Item2;
-                    PickOrder.text = (pickNumber + 1).ToString();
-                    picked = true;
-                }
+                if (pickRes.Item1 == true)
+                    SetPicked(pickRes.Item2);
             }
         }
 
@@ -57,6 +52,14 @@ namespace Ingame
         {
             picked = false;
             PickedEffect.SetActive(false);
+        }
+
+        public void SetPicked(int num)
+        {
+            PickedEffect.SetActive(true);
+            pickNumber = num;
+            PickOrder.text = (pickNumber + 1).ToString();
+            picked = true;
         }
     }
 }

@@ -69,6 +69,35 @@ namespace Ingame
             return PickGroup;
         }
 
+        public async Task<IdolPickGroup> Show(IdolPickGroup existing)
+        {
+            PickCompleted = false;
+            PickGroup = existing;
+            MaxPick = existing.Capacity;
+
+            isSlotFilled = new bool[MaxPick];
+            for (int i = 0; i < MaxPick; i++)
+                if (existing.Idols[i] != null)
+                    isSlotFilled[i] = true;
+
+            MasterPickPanel.SetActive(true);
+            for(int i = 0; i < cards.Count; i++)
+            {
+                var linked = cards[i].GetComponentInChildren<IdolCard>().LinkedIdol;
+                for (int j = 0; j < existing.Idols.Length; j++)
+                {
+                    if (linked == existing.Idols[j])
+                    {
+                        cards[i].GetComponentInChildren<IdolPickerCardClicker>().SetPicked(j);
+                        break;
+                    }
+                }
+            }
+
+            await new WaitUntil(() => PickCompleted);
+            return PickGroup;
+        }
+
         public (bool, int) TryPick(IdolData data)
         {
             for(int i = 0; i < MaxPick; i++)
