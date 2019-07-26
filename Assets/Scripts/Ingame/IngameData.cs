@@ -9,7 +9,13 @@ namespace Ingame
     [System.Serializable]
     public class IngameData
     {
-        public List<IdolData> Idols;
-        public List<SongData> Songs;
+        public Dictionary<int, IdolData> Idols;
+        public Dictionary<int, SongData> Songs;
+        public TheaterData Theater;
+
+        public IngameData()
+        {
+            Theater = new TheaterData();
+        }
     }
 }

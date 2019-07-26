@@ -9,20 +9,14 @@ namespace Ingame
 {
     public class TheaterSlot : MonoBehaviour
     {
-        public bool SongAssigned { get { return Song != null; } }
-        public bool IdolAssigned { get { return Slot != null && Slot.Idols.Length > 0; } }
+        public bool SongAssigned { get { return Data.SongIndex != -1; } }
+        public bool IdolAssigned { get { return Data.Idols.Count > 0; } }
 
         public Text StatusText, SongNameText, MaxIdolText;
+        public Button IdolSelectBtn;
 
         [HideInInspector]
-        public SongData Song;
-        [HideInInspector]
-        public IdolPickGroup Slot;
-
-        void Start()
-        {
-
-        }
+        public TheaterSlotData Data;
 
         void Update()
         {
@@ -32,26 +26,47 @@ namespace Ingame
                     StatusText.text = "OK";
                 else
                     StatusText.text = "RQ";
+                IdolSelectBtn.interactable = true;
             }
             else
+            {
                 StatusText.text = "NA";
+                IdolSelectBtn.interactable = false;
+            }
         }
 
-        public void SetSong(SongData data)
+        public async void SetSong()
         {
-            Song = data;
-            Slot = new IdolPickGroup(Song.MaxIdol);
+            Data.SongIndex = await SongPicker.Instance.Show(Data.SongIndex);
+            if (Data.SongIndex > -1)
+            {
+                Data.Idols = new IdolPickGroup(IngameManager.Instance.Data.Songs[Data.SongIndex].MaxIdol);
+                SongNameText.text = IngameManager.Instance.Data.Songs[Data.SongIndex].Name;
+                MaxIdolText.text = $"{Data.Idols.Count}/{Data.Idols.Capacity}";
+            }
+            else
+                EraseSong();
+        }
+
+        public async void SetIdol()
+        {
+            Data.Idols = await IdolPicker.Instance.Show(Data.Idols);
+            MaxIdolText.text = $"{Data.Idols.Count}/{Data.Idols.Capacity}";
         }
 
         public void EraseSong()
         {
-            Song = null;
-            Slot = null;
+            Data.SongIndex = -1;
+            Data.Idols = new IdolPickGroup(0);
+            SongNameText.text = "";
+            MaxIdolText.text = "0/0";
         }
 
         public float CalculateAppeal()
         {
-            return 0;
+            var appeal = Data.Idols.CalculateAppeal(IngameManager.Instance.Data.Songs[Data.SongIndex]);
+            // Process for appeal item 2
+            return appeal.Item1;
         }
     }
 }

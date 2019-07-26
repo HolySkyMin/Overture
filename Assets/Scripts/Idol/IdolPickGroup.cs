@@ -10,15 +10,16 @@ namespace Idol
     public class IdolPickGroup
     {
         public int Capacity;
-        public IdolData[] Idols;
+        public int Count;
+        public int[] IdolIndices;
         public Dictionary<IdolPersonality, int> PersonaDic;
 
         public override string ToString()
         {
             string res = "[ ";
-            for (int i = 0; i < Idols.Length; i++)
-                if (Idols[i] != null)
-                    res += Idols[i].Name + ", ";
+            for (int i = 0; i < IdolIndices.Length; i++)
+                if (IdolIndices[i] != -1)
+                    res += IngameManager.Instance.Data.Idols[IdolIndices[i]].Name + ", ";
             res += "]";
             return res;
         }
@@ -26,7 +27,10 @@ namespace Idol
         public IdolPickGroup(int capacity)
         {
             Capacity = capacity;
-            Idols = new IdolData[capacity];
+            Count = 0;
+            IdolIndices = new int[capacity];
+            for (int i = 0; i < capacity; i++)
+                IdolIndices[i] = -1;
             PersonaDic = new Dictionary<IdolPersonality, int>();
         }
 
@@ -34,10 +38,11 @@ namespace Idol
         {
             if (index < Capacity && index >= 0)
             {
-                Idols[index] = idol;
+                IdolIndices[index] = idol.Index;
                 if (!PersonaDic.ContainsKey(idol.Personality))
                     PersonaDic.Add(idol.Personality, 0);
                 PersonaDic[idol.Personality]++;
+                Count++;
             }
         }
 
@@ -45,16 +50,31 @@ namespace Idol
         {
             if (index < Capacity && index >= 0)
             {
-                PersonaDic[Idols[index].Personality]--;
-                if (PersonaDic[Idols[index].Personality] < 1)
-                    PersonaDic.Remove(Idols[index].Personality);
-                Idols[index] = null;
+                var idol = IngameManager.Instance.Data.Idols[IdolIndices[index]];
+                PersonaDic[idol.Personality]--;
+                if (PersonaDic[idol.Personality] < 1)
+                    PersonaDic.Remove(idol.Personality);
+                IdolIndices[index] = -1;
+                Count--;
             }
         }
 
-        public float CaculateAppeal(SongData song)
+        public (float, float[]) CalculateAppeal(SongData song)
         {
-            return 0;
+            float res = 0;
+            var resIdol = new float[Capacity];
+
+            for(int i = 0; i < Capacity; i++)
+            {
+                if (IdolIndices[i] != -1)
+                {
+                    var idol = IngameManager.Instance.Data.Idols[IdolIndices[i]];
+                    resIdol[i] = song.CalculateAppeal(idol.Vocal, idol.Dance, idol.Visual);
+                    res += resIdol[i];
+                }
+            }
+            var finalRes = ApplyPersonality(res, resIdol);
+            return (finalRes, resIdol);
         }
 
         public float CalculateAppeal(WorkData work)
@@ -64,7 +84,7 @@ namespace Idol
 
         public float ApplyPersonality(float allAppeal, float[] idolAppeal)
         {
-
+            return 0;
         }
     }
 }

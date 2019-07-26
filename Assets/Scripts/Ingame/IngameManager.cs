@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Idol;
+using Song;
 
 namespace Ingame
 {
@@ -18,12 +19,16 @@ namespace Ingame
 
             // Debug 190719
             Data = new IngameData();
-            Data.Idols = new List<IdolData>();
+            Data.Idols = new Dictionary<int, IdolData>();
 
             var idols = IdolData.Generate(20);
             Debug.Log(idols.Length);
-            foreach (var idol in idols)
-                Data.Idols.Add(idol);
+            for (int i = 0; i < idols.Length; i++)
+            {
+                idols[i].Index = i;
+                Data.Idols.Add(i, idols[i]);
+            }
+            Data.Songs = SongData.GetAll();
         }
 
         // Start is called before the first frame update
@@ -31,7 +36,9 @@ namespace Ingame
         {
             // Debug 190719
             foreach (var idol in Data.Idols)
-                IdolPicker.Instance.LoadCard(idol);
+                IdolPicker.Instance.LoadCard(idol.Value);
+            foreach (var song in Data.Songs)
+                SongPicker.Instance.LoadCard(song.Value);
         }
 
         // Update is called once per frame

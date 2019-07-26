@@ -11,15 +11,17 @@ namespace Ingame
         public int RequiredMoney;
         public TheaterSlot[] Slots;
 
+        public TheaterUnitData Data;
+
         void Start()
         {
-            if (!Unlocked)
+            if (!Data.Unlocked)
                 gameObject.SetActive(false);
         }
 
         public void Activate()
         {
-            Unlocked = true;
+            Data.Unlocked = true;
             gameObject.SetActive(true);
         }
     }

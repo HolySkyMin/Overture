@@ -16,6 +16,7 @@ namespace Idol
     {
         public string Name { get { return LastName + " " + FirstName; } }
 
+        public int Index;
         public string FirstName;
         public string LastName;
         public string ImageKey;

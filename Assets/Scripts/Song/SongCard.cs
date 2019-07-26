@@ -8,10 +8,12 @@ namespace Song
     public class SongCard : MonoBehaviour
     {
         public Text NameText, FlavorText, MaxIdolText;
+        public GameObject[] TypePanel;
         public Text[] AbilityText;
         public GameObject[] RankColorStars;
 
-        private SongData Song;
+        [HideInInspector]
+        public SongData LinkedSong;
 
         // Start is called before the first frame update
         void Start()
@@ -25,18 +27,25 @@ namespace Song
 
         }
 
-        public void SetData(SongData data)
+        public void SetSong(SongData data)
         {
-            Song = data;
+            LinkedSong = data;
             foreach (var obj in RankColorStars)
                 obj.SetActive(false);
 
-            NameText.text = Song.Name;
-            FlavorText.text = Song.FlavorText;
-            MaxIdolText.text = Song.MaxIdol.ToString();
-            for (int i = 0; i < Song.Abilities.Length; i++)
-                AbilityText[i].text = Song.Abilities[i].Description;
-            for (int i = 0; i < Song.Rank; i++)
+            NameText.text = LinkedSong.Name;
+            FlavorText.text = LinkedSong.FlavorText;
+            for (int i = 0; i < 5; i++)
+            {
+                if ((int)LinkedSong.Type == i)
+                    TypePanel[i].SetActive(true);
+                else
+                    TypePanel[i].SetActive(false);
+            }
+            MaxIdolText.text = LinkedSong.MaxIdol.ToString();
+            //for (int i = 0; i < LinkedSong.Abilities.Length; i++)
+            //    AbilityText[i].text = LinkedSong.Abilities[i].Description;
+            for (int i = 0; i < LinkedSong.Rank; i++)
                 RankColorStars[i].SetActive(true);
         }
     }

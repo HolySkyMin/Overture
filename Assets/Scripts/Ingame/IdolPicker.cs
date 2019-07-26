@@ -77,16 +77,19 @@ namespace Ingame
 
             isSlotFilled = new bool[MaxPick];
             for (int i = 0; i < MaxPick; i++)
-                if (existing.Idols[i] != null)
+                if (existing.IdolIndices[i] != -1)
                     isSlotFilled[i] = true;
 
             MasterPickPanel.SetActive(true);
             for(int i = 0; i < cards.Count; i++)
             {
+                cards[i].GetComponentInChildren<IdolPickerCardClicker>().Clean();
+                cards[i].SetActive(true);
+
                 var linked = cards[i].GetComponentInChildren<IdolCard>().LinkedIdol;
-                for (int j = 0; j < existing.Idols.Length; j++)
+                for (int j = 0; j < existing.IdolIndices.Length; j++)
                 {
-                    if (linked == existing.Idols[j])
+                    if (linked.Index == existing.IdolIndices[j])
                     {
                         cards[i].GetComponentInChildren<IdolPickerCardClicker>().SetPicked(j);
                         break;

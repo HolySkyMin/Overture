@@ -10,10 +10,22 @@ namespace Ingame
         public RectTransform ObjMasterParent;
         public TheaterUnit[] Units;
 
-        // Start is called before the first frame update
-        void Start()
+        private void Start()
         {
-            
+            for(int i = 0; i < 5; i++)
+            {
+                if(Units[i] != null)
+                {
+                    Units[i].Data = IngameManager.Instance.Data.Theater.Units[i];
+                    for(int j = 0; j < 4; j++)
+                    {
+                        if(Units[i].Slots[j] != null)
+                            Units[i].Slots[j].Data = IngameManager.Instance.Data.Theater.Units[i].Slots[j];
+                    }
+                    if (Units[i].Data.Unlocked)
+                        Units[i].Activate();
+                }
+            }
         }
 
         // Update is called once per frame
@@ -30,6 +42,22 @@ namespace Ingame
         public void ApplyFanChange()
         {
 
+        }
+
+        public void SaveTheater()
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                if (Units[i] != null)
+                {
+                    IngameManager.Instance.Data.Theater.Units[i] = Units[i].Data;
+                    for (int j = 0; j < 4; j++)
+                    {
+                        if (Units[i].Slots[j] != null)
+                            IngameManager.Instance.Data.Theater.Units[i].Slots[j] = Units[i].Slots[j].Data;
+                    }
+                }
+            }
         }
     }
 }
