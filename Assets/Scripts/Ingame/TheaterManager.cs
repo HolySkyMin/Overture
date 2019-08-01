@@ -34,6 +34,16 @@ namespace Ingame
 
         }
 
+        public void ShowTheaterPanel()
+        {
+            Window.SetActive(true);
+        }
+
+        public void HideTheaterPanel()
+        {
+            Window.SetActive(false);
+        }
+
         public int CalculateMoney()
         {
             return 0;

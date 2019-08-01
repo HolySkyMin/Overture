@@ -11,10 +11,12 @@ namespace Ingame
     {
         public static IdolPicker Instance { get; private set; }
 
+        public bool IsWorkLessonPick { get; set; }
         public bool PickCompleted { get; set; }
 
         public GameObject MasterPickPanel, CardHolder;
         public RectTransform CardParent;
+        public IdolPickVisualizer Visualizer;
 
         [HideInInspector]
         public int MaxPick;
@@ -47,6 +49,11 @@ namespace Ingame
             cards.Add(holderObj);
         }
 
+        private void Update()
+        {
+            Visualizer.Visualize(PickGroup);
+        }
+
         public async Task<IdolPickGroup> Show(int count)
         {
             PickCompleted = false;
@@ -69,8 +76,9 @@ namespace Ingame
             return PickGroup;
         }
 
-        public async Task<IdolPickGroup> Show(IdolPickGroup existing)
+        public async Task<IdolPickGroup> Show(IdolPickGroup existing, bool isWorkOrLesson = false)
         {
+            IsWorkLessonPick = isWorkOrLesson;
             PickCompleted = false;
             PickGroup = existing;
             MaxPick = existing.Capacity;
@@ -83,17 +91,25 @@ namespace Ingame
             MasterPickPanel.SetActive(true);
             for(int i = 0; i < cards.Count; i++)
             {
-                cards[i].GetComponentInChildren<IdolPickerCardClicker>().Clean();
+                var cardClicker = cards[i].GetComponentInChildren<IdolPickerCardClicker>();
+                cardClicker.Clean();
                 cards[i].SetActive(true);
 
                 var linked = cards[i].GetComponentInChildren<IdolCard>().LinkedIdol;
+                bool flag = false;
                 for (int j = 0; j < existing.IdolIndices.Length; j++)
                 {
                     if (linked.Index == existing.IdolIndices[j])
                     {
-                        cards[i].GetComponentInChildren<IdolPickerCardClicker>().SetPicked(j);
+                        cardClicker.SetPicked(j);
+                        flag = true;
                         break;
                     }
+                }
+                if(isWorkOrLesson && flag == false && linked.IsWorkLessonPicked)
+                {
+                    cardClicker.WorkLessonEffect.SetActive(true);
+                    cardClicker.allowPick = false;
                 }
             }
 
@@ -107,7 +123,7 @@ namespace Ingame
             {
                 if(!isSlotFilled[i])
                 {
-                    PickGroup.SetIdol(i, data);
+                    PickGroup.SetIdol(i, data, IsWorkLessonPick);
                     isSlotFilled[i] = true;
                     return (true, i);
                 }
@@ -117,7 +133,7 @@ namespace Ingame
 
         public void Remove(int index)
         {
-            PickGroup.RemoveIdol(index);
+            PickGroup.RemoveIdol(index, IsWorkLessonPick);
             isSlotFilled[index] = false;
         }
 

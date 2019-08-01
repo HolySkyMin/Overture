@@ -10,7 +10,8 @@ namespace Ingame
     [RequireComponent(typeof(IdolCard))]
     public class IdolPickerCardClicker : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
     {
-        public GameObject PickedEffect;
+        public bool allowPick;
+        public GameObject PickedEffect, WorkLessonEffect;
         public Text PickOrder;
 
         private int pickNumber;
@@ -24,23 +25,27 @@ namespace Ingame
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (picked)
+            if(allowPick)
             {
-                IdolPicker.Instance.Remove(pickNumber);
-                PickedEffect.SetActive(false);
-                picked = false;
-            }
-            else
-            {
-                var pickRes = IdolPicker.Instance.TryPick(GetComponent<IdolCard>().LinkedIdol);
-                if (pickRes.Item1 == true)
-                    SetPicked(pickRes.Item2);
+                if (picked)
+                {
+                    IdolPicker.Instance.Remove(pickNumber);
+                    PickedEffect.SetActive(false);
+                    picked = false;
+                }
+                else
+                {
+                    var pickRes = IdolPicker.Instance.TryPick(GetComponent<IdolCard>().LinkedIdol);
+                    if (pickRes.Item1 == true)
+                        SetPicked(pickRes.Item2);
+                }
             }
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            gameObject.transform.localScale = originScale * 1.1f;
+            if(allowPick)
+                gameObject.transform.localScale = originScale * 1.1f;
         }
 
         public void OnPointerExit(PointerEventData eventData)
@@ -51,7 +56,9 @@ namespace Ingame
         public void Clean()
         {
             picked = false;
+            allowPick = true;
             PickedEffect.SetActive(false);
+            WorkLessonEffect.SetActive(false);
         }
 
         public void SetPicked(int num)

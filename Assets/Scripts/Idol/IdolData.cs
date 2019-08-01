@@ -30,6 +30,8 @@ namespace Idol
         public int Fan;
         public IdolPersonality Personality;
 
+        public bool IsWorkLessonPicked;
+
         public static IdolData[] Generate(int amount)
         {
             var namedata = CSVReader.Read("Data/Idol/IdolNameTable");

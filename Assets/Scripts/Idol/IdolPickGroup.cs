@@ -36,10 +36,12 @@ namespace Idol
             PersonaDic = new Dictionary<IdolPersonality, int>();
         }
 
-        public void SetIdol(int index, IdolData idol)
+        public void SetIdol(int index, IdolData idol, bool isWorkLesson)
         {
             if (index < Capacity && index >= 0)
             {
+                if (isWorkLesson)
+                    idol.IsWorkLessonPicked = true;
                 IdolIndices[index] = idol.Index;
                 if (!PersonaDic.ContainsKey(idol.Personality))
                     PersonaDic.Add(idol.Personality, 0);
@@ -48,11 +50,13 @@ namespace Idol
             }
         }
 
-        public void RemoveIdol(int index)
+        public void RemoveIdol(int index, bool isWorkLesson)
         {
             if (index < Capacity && index >= 0)
             {
                 var idol = IngameManager.Instance.Data.Idols[IdolIndices[index]];
+                if (isWorkLesson)
+                    idol.IsWorkLessonPicked = false;
                 PersonaDic[idol.Personality]--;
                 if (PersonaDic[idol.Personality] < 1)
                     PersonaDic.Remove(idol.Personality);

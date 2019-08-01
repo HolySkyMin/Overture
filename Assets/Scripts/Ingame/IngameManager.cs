@@ -10,6 +10,7 @@ namespace Ingame
     {
         public static IngameManager Instance { get; private set; }
 
+        public List<Dictionary<string, object>> WorkList;
         [HideInInspector]
         public IngameData Data;
 
@@ -29,6 +30,8 @@ namespace Ingame
                 Data.Idols.Add(i, idols[i]);
             }
             Data.Songs = SongData.GetAll();
+
+            WorkList = CSVReader.Read("Data/WorkDataTable");
         }
 
         // Start is called before the first frame update

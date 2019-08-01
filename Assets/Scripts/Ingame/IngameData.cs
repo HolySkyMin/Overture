@@ -12,6 +12,7 @@ namespace Ingame
         public Dictionary<int, IdolData> Idols;
         public Dictionary<int, SongData> Songs;
         public TheaterData Theater;
+        public WorkData[] Work;
 
         public IngameData()
         {
