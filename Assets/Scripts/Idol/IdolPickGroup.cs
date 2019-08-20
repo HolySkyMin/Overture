@@ -14,6 +14,7 @@ namespace Idol
         public int Capacity;
         public int Count;
         public int[] IdolIndices;
+        public int[] Restriction;
         public Dictionary<IdolPersonality, int> PersonaDic;
 
         public override string ToString()
@@ -33,13 +34,20 @@ namespace Idol
             IdolIndices = new int[capacity];
             for (int i = 0; i < capacity; i++)
                 IdolIndices[i] = -1;
+            Restriction = new int[7];
             PersonaDic = new Dictionary<IdolPersonality, int>();
         }
 
-        public void SetIdol(int index, IdolData idol, bool isWorkLesson)
+        public bool SetIdol(int index, IdolData idol, bool isWorkLesson, out string rejectReason)
         {
             if (index < Capacity && index >= 0)
             {
+                if(idol.CheckRestriction(Restriction) == false)
+                {
+                    rejectReason = "해당 아이돌은 조건에 맞지 않습니다.";
+                    return false;
+                }
+
                 if (isWorkLesson)
                     idol.IsWorkLessonPicked = true;
                 IdolIndices[index] = idol.Index;
@@ -47,6 +55,13 @@ namespace Idol
                     PersonaDic.Add(idol.Personality, 0);
                 PersonaDic[idol.Personality]++;
                 Count++;
+                rejectReason = "";
+                return true;
+            }
+            else
+            {
+                rejectReason = "슬롯이 다 찼습니다.";
+                return false;
             }
         }
 
@@ -91,35 +106,38 @@ namespace Idol
 
         public float ApplyPersonality(float allAppeal, float[] idolAppeal)
         {
+            // 아이돌 성격을 따온 배열을 만들어 계산하려고 함
+            var personaList = new List<IdolPersonality>();
+            for(int i = 0; i < IdolIndices.Length; i++)
+            {
+                if (IdolIndices[i] != -1)
+                    personaList.Add(IngameManager.Instance.Data.Idols[IdolIndices[i]].Personality);
+                else
+                    personaList.Add(IdolPersonality.Unknown);
+            }
+
             float[] bonus = new float[idolAppeal.Length];
             bool applyBold = false;
             for (int i=0; i<idolAppeal.Length;i++)
             {
-                var idol = IngameManager.Instance.Data.Idols[IdolIndices[i]];
-                var personality = idol.Personality;
+                var personality = personaList[i];
                 if(personality == IdolPersonality.Naive)
                 {
                     if(i!=0)
                     {
-                        var idolleft = IngameManager.Instance.Data.Idols[IdolIndices[i-1]];
-                        if(idolleft.Personality != IdolPersonality.Naive)
-                            idolleft.Personality = IdolPersonality.Unknown;
+                        if(personaList[i - 1] != IdolPersonality.Naive)
+                            personaList[i - 1] = IdolPersonality.Unknown;
                     }
                     if (i!=idolAppeal.Length -1)
                     {
-                        var idolright = IngameManager.Instance.Data.Idols[IdolIndices[i + 1]];
-                        if (idolright.Personality != IdolPersonality.Naive)
-                            idolright.Personality = IdolPersonality.Unknown;
+                        if (personaList[i + 1] != IdolPersonality.Naive)
+                            personaList[i + 1] = IdolPersonality.Unknown;
                     }
                 }
             }
             int[] counts = new int[Enum.GetNames(typeof(IdolPersonality)).Length];
             for(int i=0; i<idolAppeal.Length;i++)
-            {
-                var idol = IngameManager.Instance.Data.Idols[IdolIndices[i]];
-                var personality = idol.Personality;
-                counts[(int)personality]++;
-            }
+                counts[(int)personaList[i]]++;
             counts[(int)IdolPersonality.Unknown] = 0;
 
             //count personality 종류
@@ -131,10 +149,7 @@ namespace Idol
             }
             for (int i=0;i<idolAppeal.Length;i++)
             {
-                var idol = IngameManager.Instance.Data.Idols[IdolIndices[i]];
-                var personality = idol.Personality;
-                
-                switch (personality)
+                switch (personaList[i])
                 {
                     case IdolPersonality.Unknown:
                         break;

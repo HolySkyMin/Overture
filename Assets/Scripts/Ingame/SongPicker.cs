@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 using Song;
 
 namespace Ingame
@@ -11,12 +12,16 @@ namespace Ingame
         public static SongPicker Instance { get; private set; }
 
         public bool PickCompleted { get; set; }
+        public bool IsMultiple { get; set; }
 
         public GameObject MasterPickPanel, CardHolder;
         public RectTransform CardParent;
+        public Scrollbar Bar;
 
         [HideInInspector]
         public int PickedSongIndex;
+        [HideInInspector]
+        public List<int> PickedSongList;
 
         private int lastPickCardIndex;
         private List<GameObject> cards = new List<GameObject>();
@@ -51,6 +56,7 @@ namespace Ingame
             PickCompleted = false;
             PickedSongIndex = existingIndex;
             lastPickCardIndex = -1;
+            IsMultiple = false;
 
             MasterPickPanel.SetActive(true);
             for (int i = 0; i < cards.Count; i++)
@@ -66,33 +72,76 @@ namespace Ingame
                     lastPickCardIndex = i;
                 }
             }
+            Bar.value = 1;
 
             await new WaitUntil(() => PickCompleted);
             return PickedSongIndex;
         }
 
+        public async Task<List<int>> Show(List<int> existingList)
+        {
+            PickCompleted = false;
+            PickedSongList = existingList;
+            IsMultiple = true;
+
+            MasterPickPanel.SetActive(true);
+            for (int i = 0; i < cards.Count; i++)
+            {
+                cards[i].GetComponentInChildren<SongPickerCardClicker>().Index = i;
+                cards[i].GetComponentInChildren<SongPickerCardClicker>().Clean();
+                cards[i].SetActive(true);
+
+                var linked = cards[i].GetComponentInChildren<SongCard>().LinkedSong;
+                if (PickedSongList.Contains(linked.Index))
+                {
+                    cards[i].GetComponentInChildren<SongPickerCardClicker>().SetPicked();
+                    lastPickCardIndex = i;
+                }
+            }
+            Bar.value = 1;
+
+            await new WaitUntil(() => PickCompleted);
+            return PickedSongList;
+        }
+
         public bool TryPick(SongData data)
         {
-            if(PickedSongIndex == -1)
+            if(IsMultiple)
             {
-                PickedSongIndex = data.Index;
+                PickedSongList.Add(data.Index);
                 return true;
             }
             else
-                return false;
+            {
+                if (PickedSongIndex == -1)
+                {
+                    PickedSongIndex = data.Index;
+                    return true;
+                }
+                else
+                    return false;
+            }
         }
 
         public void Pick(SongData data, int cardIndex)
         {
-            PickedSongIndex = data.Index;
-            if(lastPickCardIndex > -1)
-                cards[lastPickCardIndex].GetComponentInChildren<SongPickerCardClicker>().Clean();
-            lastPickCardIndex = cardIndex;
+            if(IsMultiple)
+                PickedSongList.Add(data.Index);
+            else
+            {
+                PickedSongIndex = data.Index;
+                if (lastPickCardIndex > -1)
+                    cards[lastPickCardIndex].GetComponentInChildren<SongPickerCardClicker>().Clean();
+                lastPickCardIndex = cardIndex;
+            }
         }
 
-        public void Remove()
+        public void Remove(SongData data)
         {
-            PickedSongIndex = -1;
+            if (IsMultiple)
+                PickedSongList.Remove(data.Index);
+            else
+                PickedSongIndex = -1;
         }
 
         public void ConfirmPick()

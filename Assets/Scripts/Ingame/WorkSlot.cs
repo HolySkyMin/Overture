@@ -48,6 +48,7 @@ namespace Ingame
                     ReqAbilDisp[i].SetActive(true);
                 }
             }
+            Data.IdolSlot.Restriction = Data.RequireAbility;
         }
 
         private void Update()

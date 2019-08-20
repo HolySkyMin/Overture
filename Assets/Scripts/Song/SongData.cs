@@ -57,6 +57,27 @@ namespace Song
             return list;
         }
 
+        public static SongData[] Get(int amount)
+        {
+            var list = new List<SongData>();
+            for(int i = 0; i < amount; i++)
+            {
+                int rnd = Random.Range(0, IngameManager.Instance.Data.SongDataPool.Count);
+                var data = IngameManager.Instance.Data.SongDataPool[rnd];
+
+                list.Add(new SongData()
+                {
+                    Name = (string)data["name"],
+                    Rank = (int)data["rank"],
+                    Type = (SongType)data["type"],
+                    MaxIdol = (int)data["maxIdol"],
+                    FlavorText = ((string)data["description"]).Replace('@', '\n')
+                });
+                IngameManager.Instance.Data.SongDataPool.RemoveAt(rnd);
+            }
+            return list.ToArray();
+        }
+
         public int CalculateAppeal(int vocal, int dance, int visual)
         {
             return Mathf.FloorToInt((vocal * TypeMultiplyTable[Type].Item1 + dance * TypeMultiplyTable[Type].Item2 + visual * TypeMultiplyTable[Type].Item3) * RankMultiplyTable[Rank]);

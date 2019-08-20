@@ -2530,7 +2530,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &651773875755356559
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2540,7 +2540,7 @@ RectTransform:
   m_GameObject: {fileID: 7892334655476650909}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.6, y: 0.6, z: 1}
   m_Children:
   - {fileID: 2255955307458088481}
   - {fileID: 8487927077001949856}
@@ -2549,7 +2549,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 208.68, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 417.36, y: 600}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6246613726420460390
@@ -2620,6 +2620,7 @@ MonoBehaviour:
   - {fileID: 4712191548553785495}
   - {fileID: 7218496740721848776}
   LinkedSong:
+    Index: 0
     Name: 
     Rank: 0
     Cost: 0
@@ -2640,6 +2641,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PickedEffect: {fileID: 5653595173381152703}
+  Index: 0
 --- !u!1 &7984183994010029979
 GameObject:
   m_ObjectHideFlags: 0

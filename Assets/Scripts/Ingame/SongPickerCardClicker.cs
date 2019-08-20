@@ -26,7 +26,7 @@ namespace Ingame
         {
             if (picked)
             {
-                SongPicker.Instance.Remove();
+                SongPicker.Instance.Remove(GetComponent<SongCard>().LinkedSong);
                 PickedEffect.SetActive(false);
                 picked = false;
             }

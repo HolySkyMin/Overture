@@ -15,8 +15,11 @@ namespace Ingame
         public bool PickCompleted { get; set; }
 
         public GameObject MasterPickPanel, CardHolder;
+        public ObjectWithText RejectObject;
         public RectTransform CardParent;
         public IdolPickVisualizer Visualizer;
+        public Scrollbar Bar;
+        public Animator Motion;
 
         [HideInInspector]
         public int MaxPick;
@@ -66,6 +69,7 @@ namespace Ingame
 
             // DO UI THING
             MasterPickPanel.SetActive(true);
+            Bar.value = 0;
             for (int i = 0; i < cards.Count; i++)
             {
                 cards[i].GetComponentInChildren<IdolPickerCardClicker>().Clean();
@@ -112,6 +116,7 @@ namespace Ingame
                     cardClicker.allowPick = false;
                 }
             }
+            Bar.value = 1;
 
             await new WaitUntil(() => PickCompleted);
             return PickGroup;
@@ -123,11 +128,24 @@ namespace Ingame
             {
                 if(!isSlotFilled[i])
                 {
-                    PickGroup.SetIdol(i, data, IsWorkLessonPick);
-                    isSlotFilled[i] = true;
-                    return (true, i);
+                    var res = PickGroup.SetIdol(i, data, IsWorkLessonPick, out string reason);
+                    if(res == true)
+                    {
+                        isSlotFilled[i] = true;
+                        return (true, i);
+                    }
+                    else
+                    {
+                        RejectObject.text.text = reason;
+                        Motion.StopPlayback();
+                        Motion.Play("PickerRejectNotiAnim", -1, 0);
+                        return (false, -1);
+                    }
                 }
             }
+            RejectObject.text.text = "슬롯이 다 찼습니다.";
+            Motion.StopPlayback();
+            Motion.Play("PickerRejectNotiAnim", -1, 0);
             return (false, -1);
         }
 
@@ -140,6 +158,8 @@ namespace Ingame
         public void ConfirmPick()
         {
             PickCompleted = true;
+            Motion.StopPlayback();
+            RejectObject.SetActive(false);
             MasterPickPanel.SetActive(false);
         }
     }

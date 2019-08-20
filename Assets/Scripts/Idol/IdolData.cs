@@ -14,6 +14,8 @@ namespace Idol
     [Serializable]
     public class IdolData
     {
+        public const int IMAGE_COUNT = 42;
+
         public string Name { get { return LastName + " " + FirstName; } }
 
         public int Index;
@@ -43,7 +45,7 @@ namespace Idol
                 {
                     FirstName = (string)namedata[UnityEngine.Random.Range(0, namedata.Count)]["first"],
                     LastName = (string)namedata[UnityEngine.Random.Range(0, namedata.Count)]["last"],
-                    // ImageKey
+                    ImageKey = $"Images/Idol/chr{UnityEngine.Random.Range(0, IMAGE_COUNT)}",
                     Cost = 1,
                     Vocal = 1,
                     Dance = 1,
@@ -85,7 +87,17 @@ namespace Idol
             }
             return datalist.ToArray();
         }
-    }
 
-    
+        public bool CheckRestriction(int[] restriction)
+        {
+            bool chk = true;
+            chk &= restriction[0] <= Vocal;
+            chk &= restriction[1] <= Dance;
+            chk &= restriction[2] <= Visual;
+            chk &= restriction[3] <= Variety;
+            chk &= restriction[5] <= Honor;
+            chk &= restriction[6] <= Fan;
+            return chk;
+        }
+    }
 }
