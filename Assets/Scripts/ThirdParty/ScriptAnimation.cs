@@ -23,9 +23,21 @@ namespace ScriptedAnimation
             Debug.Log("이 메시지를 숨기려면 해당 클래스에 Appear() 함수를 override로 구현하고, 그 함수에서 base.Appear() 를 지우세요.");
         }
 
+        public virtual IEnumerator Appear_C()
+        {
+            Debug.Log("이 메시지를 숨기려면 해당 클래스에 Appear_C() 함수를 override로 구현하고, 그 함수에서 base.Appear() 를 지우세요.");
+            yield break;
+        }
+
         public async virtual Task Disappear()
         {
             Debug.Log("이 메시지를 숨기려면 해당 클래스에 Disappear() 함수를 override로 구현하고, 그 함수에서 base.Disappear() 를 지우세요.");
+        }
+
+        public virtual IEnumerator Disappear_C()
+        {
+            Debug.Log("이 메시지를 숨기려면 해당 클래스에 Disappear_C() 함수를 override로 구현하고, 그 함수에서 base.Disappear() 를 지우세요.");
+            yield break;
         }
 
         protected async Task TweenPosition(Vector3 initial, Vector3 final, float duration)
@@ -35,11 +47,25 @@ namespace ScriptedAnimation
             await new WaitForSeconds(duration);
         }
 
+        protected IEnumerator TweenPosition_C(Vector3 initial, Vector3 final, float duration)
+        {
+            GetComponent<RectTransform>().position = initial;
+            GetComponent<RectTransform>().DOMove(final, duration);
+            yield return new WaitForSeconds(duration);
+        }
+
         protected async Task TweenScale(Vector3 initial, Vector3 final, float duration)
         {
             GetComponent<RectTransform>().localScale = initial;
             GetComponent<RectTransform>().DOScale(final, duration);
             await new WaitForSeconds(duration);
+        }
+
+        protected IEnumerator TweenScale_C(Vector3 initial, Vector3 final, float duration)
+        {
+            GetComponent<RectTransform>().localScale = initial;
+            GetComponent<RectTransform>().DOScale(final, duration);
+            yield return new WaitForSeconds(duration);
         }
 
         protected async Task TweenRotation(Vector3 initial, Vector3 final, float duration)
@@ -49,6 +75,13 @@ namespace ScriptedAnimation
             await new WaitForSeconds(duration);
         }
 
+        protected IEnumerator TweenRotation_C(Vector3 initial, Vector3 final, float duration)
+        {
+            GetComponent<RectTransform>().localEulerAngles = initial;
+            GetComponent<RectTransform>().DOLocalRotate(final, duration);
+            yield return new WaitForSeconds(duration);
+        }
+
         protected async Task TweenColor(Color initial, Color final, float duration)
         {
             GetComponent<Graphic>().color = initial;
@@ -56,11 +89,25 @@ namespace ScriptedAnimation
             await new WaitForSeconds(duration);
         }
 
+        protected IEnumerator TweenColor_C(Color initial, Color final, float duration)
+        {
+            GetComponent<Graphic>().color = initial;
+            GetComponent<Graphic>().DOColor(final, duration);
+            yield return new WaitForSeconds(duration);
+        }
+
         protected async Task TweenCanvasGroup(float initial, float final, float duration)
         {
             GetComponent<CanvasGroup>().alpha = initial;
             GetComponent<CanvasGroup>().DOFade(final, duration);
             await new WaitForSeconds(duration);
+        }
+
+        protected IEnumerator TweenCanvasGroup_C(float initial, float final, float duration)
+        {
+            GetComponent<CanvasGroup>().alpha = initial;
+            GetComponent<CanvasGroup>().DOFade(final, duration);
+            yield return new WaitForSeconds(duration);
         }
 
         protected void SetCurrentAsOrigin()

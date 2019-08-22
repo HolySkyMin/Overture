@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Song;
 using Ingame;
-using System;
-using System.Linq;
 
 namespace Idol
 {
@@ -82,7 +80,6 @@ namespace Idol
 
         public (float, float[]) CalculateAppeal(SongData song)
         {
-            float res = 0;
             var resIdol = new float[Capacity];
 
             for(int i = 0; i < Capacity; i++)
@@ -91,114 +88,164 @@ namespace Idol
                 {
                     var idol = IngameManager.Instance.Data.Idols[IdolIndices[i]];
                     resIdol[i] = song.CalculateAppeal(idol.Vocal, idol.Dance, idol.Visual);
-                    res += resIdol[i];
                 }
             }
-            var finalRes = ApplyPersonality(res, resIdol);
+            var finalRes = ApplyPersonality(ref resIdol);
             return (finalRes, resIdol);
         }
 
-        public float CalculateAppeal(WorkData work)
+        public (float, float[]) CalculateAppeal(WorkData work)
         {
+            var resIdol = new float[Capacity];
 
-            return 0;
+            for(int i = 0; i < Capacity; i++)
+            {
+                if(IdolIndices[i] != -1)
+                {
+                    var idol = IngameManager.Instance.Data.Idols[IdolIndices[i]];
+                    if (work.CheckAbility[0])
+                        resIdol[i] += idol.Vocal * 10;
+                    if (work.CheckAbility[1])
+                        resIdol[i] += idol.Dance * 10;
+                    if (work.CheckAbility[2])
+                        resIdol[i] += idol.Visual * 10;
+                    if (work.CheckAbility[3])
+                        resIdol[i] += idol.Variety * 10;
+                }
+            }
+            var finalRes = ApplyPersonality(ref resIdol);
+            return (finalRes, resIdol);
         }
 
-        public float ApplyPersonality(float allAppeal, float[] idolAppeal)
+        public float ApplyPersonality(ref float[] idolAppeal)
         {
-            // 아이돌 성격을 따온 배열을 만들어 계산하려고 함
+            // 이제부터의 계산이 아이돌 데이터에 직접적인 영향을 끼치면 안 되므로, 계산을 위한 별도의 배열(컬렉션)들을 만들어 준다.
+            // 이 때 빈 슬롯은 Unknown 처리되기 때문에, 이후 성격 계산에서 Unknown은 성격으로 치지 않을 것.
             var personaList = new List<IdolPersonality>();
-            for(int i = 0; i < IdolIndices.Length; i++)
+            var personaDicCopy = new Dictionary<IdolPersonality, int>();
+            for(int i = 0; i < Capacity; i++)
             {
                 if (IdolIndices[i] != -1)
                     personaList.Add(IngameManager.Instance.Data.Idols[IdolIndices[i]].Personality);
                 else
                     personaList.Add(IdolPersonality.Unknown);
             }
-
-            float[] bonus = new float[idolAppeal.Length];
-            bool applyBold = false;
-            for (int i=0; i<idolAppeal.Length;i++)
+            foreach (var item in PersonaDic)
+                personaDicCopy.Add(item.Key, item.Value);
+            
+            // 우선 '천진난만함'(Naive) 성격을 체크. 있으면 양 옆의 슬롯 성격을 (마찬가지로 천진난만함일 때를 제외하고) Unknown으로 바꾼다.
+            for (int i = 0; i < Capacity; i++)
             {
-                var personality = personaList[i];
-                if(personality == IdolPersonality.Naive)
+                if (personaList[i] == IdolPersonality.Naive)
                 {
-                    if(i!=0)
+                    if (i > 0 && personaList[i - 1] != IdolPersonality.Naive && personaList[i - 1] != IdolPersonality.Unknown)
                     {
-                        if(personaList[i - 1] != IdolPersonality.Naive)
-                            personaList[i - 1] = IdolPersonality.Unknown;
+                        personaDicCopy[personaList[i - 1]]--;
+                        if (personaDicCopy[personaList[i - 1]] < 0)
+                            personaDicCopy.Remove(personaList[i - 1]);
+                        personaList[i - 1] = IdolPersonality.Unknown;
                     }
-                    if (i!=idolAppeal.Length -1)
+                    if (i < idolAppeal.Length - 1 && personaList[i + 1] != IdolPersonality.Naive && personaList[i + 1] != IdolPersonality.Unknown)
                     {
-                        if (personaList[i + 1] != IdolPersonality.Naive)
-                            personaList[i + 1] = IdolPersonality.Unknown;
+                        personaDicCopy[personaList[i + 1]]--;
+                        if (personaDicCopy[personaList[i + 1]] < 0)
+                            personaDicCopy.Remove(personaList[i + 1]);
+                        personaList[i + 1] = IdolPersonality.Unknown;
                     }
                 }
             }
-            int[] counts = new int[Enum.GetNames(typeof(IdolPersonality)).Length];
-            for(int i=0; i<idolAppeal.Length;i++)
-                counts[(int)personaList[i]]++;
-            counts[(int)IdolPersonality.Unknown] = 0;
 
-            //count personality 종류
-            int percnt = 0;
-            for(int i=0; i< counts.Length;i++)
+            // 그 다음 '기운참'(Healthy) 성격을 체크, 있으면 양 옆 슬롯의 보너스 계수를 2배 증가시킨다.
+            int[] bonusCoeff = new int[idolAppeal.Length];
+            for (int i = 0; i < bonusCoeff.Length; i++)
+                bonusCoeff[i] = 1;
+            for(int i = 0; i < Capacity; i++)
             {
-                if (counts[i] > 0)
-                    percnt++;
+                if(personaList[i] == IdolPersonality.Healthy)
+                {
+                    if (i > 0)
+                        bonusCoeff[i - 1] *= 2;
+                    if (i < idolAppeal.Length - 1)
+                        bonusCoeff[i + 1] *= 2;
+                }
             }
-            for (int i=0;i<idolAppeal.Length;i++)
+
+            // 나머지 성격들을 체크 및 적용시킨다.
+            float[] idolBonus = new float[idolAppeal.Length];
+            for (int i = 0; i < idolBonus.Length; i++)
+                idolBonus[i] = 1;
+            float totalBonus = 1;
+            bool applyBold = false, applyFocus = false;
+            int boldMaxBonusCoeff = 0, focusMaxBonusCoeff = 0;
+            for (int i = 0; i < Capacity; i++)
             {
                 switch (personaList[i])
                 {
-                    case IdolPersonality.Unknown:
-                        break;
-                    case IdolPersonality.Bashful:       //만약 아이돌이 자기 자신뿐이라면 총 어필 +10% 같이 참여하는 아이돌당 자신의 어필 - 5 %
-                        if(idolAppeal.Length ==1)
-                        {
-                            bonus[i] = 1.1f;
-                        } else
-                        {
-                            bonus[i] = Math.Max(1.0f - 0.05f * idolAppeal.Length, 0.3f);
-                        }
+                    case IdolPersonality.Bashful:       //만약 아이돌이 자기 자신뿐이라면 총 어필 +10%, 같이 참여하는 아이돌당 자신의 어필 -5%. 최대 어필 감소량 -30%
+                        if (Count == 1)
+                            totalBonus += 0.1f * bonusCoeff[i];
+                        else
+                            idolBonus[i] = Mathf.Max(1.0f - 0.05f * (Count - 1), 0.7f);
                         break;
                     case IdolPersonality.Jolly:         //같이 참여하는 명랑함 아이돌당 자신의 어필 +5%
-                        bonus[i] = 1f + counts[(int)IdolPersonality.Jolly] * 0.05f;
-                        break;
-                    case IdolPersonality.Naive:         //양 옆 슬롯 아이돌의 성격 보정 효과를 제거
-                        // pre-processed
+                        idolBonus[i] += (personaDicCopy[IdolPersonality.Jolly] - 1) * 0.05f * bonusCoeff[i];
                         break;
                     case IdolPersonality.Quirky:        //자신의 어필 랜덤으로 -5% ~ 5%
-                        bonus[i] = 1.0f + 0.01f * new System.Random().Next(-5, 6);
+                        idolBonus[i] += 0.01f * bonusCoeff[i] * Random.Range(-5f, 5f);
                         break;
                     case IdolPersonality.Bold:          //총 어필 +10% (여러 명이 있어도 한 번만 적용)
                         applyBold = true;
+                        if (boldMaxBonusCoeff < bonusCoeff[i])
+                            boldMaxBonusCoeff = bonusCoeff[i];
                         break;
                     case IdolPersonality.Mild:          //같이 참여하는 아이돌의 성격 하나당 자신의 어필 +2%
-                        bonus[i] = 1.0f + 0.02f * percnt;
+                        int cnt = personaDicCopy.Keys.Count;
+                        if (personaDicCopy[IdolPersonality.Mild] == 1)
+                            cnt--;
+                        idolBonus[i] += 0.02f * bonusCoeff[i] * cnt;
                         break;
                     case IdolPersonality.Relaxed:       //만약 무사태평함 아이돌이 자기 자신뿐이라면 자신의 어필 +10%
-                        if(counts[(int)IdolPersonality.Relaxed]==1)
+                        if (personaDicCopy[IdolPersonality.Relaxed] == 1)
+                            idolBonus[i] += 0.1f * bonusCoeff[i];
+                        break;
+                    case IdolPersonality.Focus:         //같이 참여하는 모든 아이돌의 성격이 집중함이면 총 어필 +5%
+                        if (personaDicCopy[IdolPersonality.Focus] == Count)
                         {
-                            bonus[i] = 1.1f;
+                            applyFocus = true;
+                            if (focusMaxBonusCoeff < bonusCoeff[i])
+                                focusMaxBonusCoeff = bonusCoeff[i];
                         }
+                        break;
+                    case IdolPersonality.Sad:           //의젓함 아이돌이 같이 참여하지 않을 시 자신의 어필 -10%
+                        if (!personaDicCopy.ContainsKey(IdolPersonality.Mild))
+                            idolBonus[i] -= 0.1f * bonusCoeff[i];
+                        break;
+                    case IdolPersonality.Ambitious:     //자신의 어필이 가장 높을 시 자신의 어필 +10%
+                        bool flag = false;
+                        foreach (var appeal in idolAppeal)
+                            if (appeal > idolAppeal[i])
+                                flag = true;
+                        if (!flag)
+                            idolBonus[i] += 0.1f * bonusCoeff[i];
                         break;
                     default:
                         break;
                 }
             }
-            for(int i=0;i<idolAppeal.Length;i++)
-            {
-                idolAppeal[i] *= bonus[i];
-            }
             if (applyBold)
+                totalBonus += 0.1f * boldMaxBonusCoeff;
+            if (applyFocus)
+                totalBonus += 0.05f * focusMaxBonusCoeff;
+
+            // 어필을 계산한다.
+            float totalAppeal = 0;
+            for (int i = 0; i < idolAppeal.Length; i++)
             {
-                for (int i = 0; i < idolAppeal.Length; i++)
-                {
-                    idolAppeal[i] *= 1.1f;
-                }
+                idolAppeal[i] *= idolBonus[i];
+                totalAppeal += idolAppeal[i];
             }
-            return idolAppeal.Sum();
+            totalAppeal *= totalBonus;
+            return totalAppeal;
         }
     }
 }

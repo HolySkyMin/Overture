@@ -12,20 +12,6 @@ namespace Ingame
 
         private List<GameObject> slotObj = new List<GameObject>();
 
-        // Start is called before the first frame update
-        void Start()
-        {
-            // DEBUG
-            CreateWorkDatas();
-            LoadWorkSlots();
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
-
         public void ShowWorkPanel()
         {
             Window.SetActive(true);
@@ -34,6 +20,46 @@ namespace Ingame
         public void HideWorkPanel()
         {
             Window.SetActive(false);
+        }
+
+        public int CalculateMoney(float appeal, int coeff)
+        {
+            return Mathf.RoundToInt(appeal * 0.15f * coeff);
+        }
+
+        public int CalculateHonor(float appeal, int coeff)
+        {
+            return Mathf.RoundToInt(appeal * 0.05f * coeff);
+        }
+
+        public int CalculateFan(float appeal, int coeff)
+        {
+            return Mathf.RoundToInt(appeal * 0.3f * coeff);
+        }
+
+        public (int, int, int) ApplySendResultData()
+        {
+            int totalMoney = 0, totalHonor = 0, totalFan = 0;
+
+            foreach(var work in IngameManager.Instance.Data.Work)
+            {
+                if(work.IdolSlot.Count > 0)
+                {
+                    var appeal = work.IdolSlot.CalculateAppeal(work);
+                    totalMoney += CalculateMoney(appeal.Item1, work.RewardCoeff[0]);
+                    for(int i = 0; i < appeal.Item2.Length; i++)
+                    {
+                        if(work.IdolSlot.IdolIndices[i] != -1)
+                        {
+                            IngameManager.Instance.Data.Idols[work.IdolSlot.IdolIndices[i]].Honor += CalculateHonor(appeal.Item2[i], work.RewardCoeff[1]);
+                            totalHonor += CalculateHonor(appeal.Item2[i], work.RewardCoeff[1]);
+                            IngameManager.Instance.Data.Idols[work.IdolSlot.IdolIndices[i]].Fan += CalculateFan(appeal.Item2[i], work.RewardCoeff[2]);
+                            totalFan += CalculateFan(appeal.Item2[i], work.RewardCoeff[2]);
+                        }
+                    }
+                }
+            }
+            return (totalMoney, totalHonor, totalFan);
         }
 
         public void CreateWorkDatas()

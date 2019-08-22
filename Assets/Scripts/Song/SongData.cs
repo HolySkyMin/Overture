@@ -25,7 +25,10 @@ namespace Song
             { SongType.Appearance, (10, 10, 40) },
             { SongType.Harmony, (20, 20, 20) }
         };
+        [System.NonSerialized]
+        public static int[] RankCostTable = { 0, 15, 35, 60, 90, 140 };
 
+        public Dictionary<string, object> RawData; 
         public int Index;
         public string Name;
         public int Rank;
@@ -50,7 +53,8 @@ namespace Song
                     Rank = (int)data["rank"],
                     Type = (SongType)data["type"],
                     MaxIdol = (int)data["maxIdol"],
-                    FlavorText = ((string)data["description"]).Replace('@', '\n')
+                    FlavorText = ((string)data["description"]).Replace('@', '\n'),
+                    Cost = RankCostTable[(int)data["rank"]]
                 };
                 list.Add(cnt++, song);
             }
@@ -59,23 +63,42 @@ namespace Song
 
         public static SongData[] Get(int amount)
         {
+            if (IngameManager.Instance.Data.SongDataPool.Count < amount)
+                amount = IngameManager.Instance.Data.SongDataPool.Count;
+
             var list = new List<SongData>();
-            for(int i = 0; i < amount; i++)
+            var rnds = new List<int>();
+            for (int j = 0; j < amount; j++)
             {
-                int rnd = Random.Range(0, IngameManager.Instance.Data.SongDataPool.Count);
-                var data = IngameManager.Instance.Data.SongDataPool[rnd];
+                int rnd = 0;
+                do { rnd = Random.Range(0, IngameManager.Instance.Data.SongDataPool.Count); }
+                while (rnds.Contains(rnd));
+                rnds.Add(rnd);
+            }
+            Debug.Log($"DataPool CNT: {IngameManager.Instance.Data.SongDataPool.Count}, RND CNT: {rnds.Count}");
+
+            for (int i = 0; i < amount; i++)
+            {
+                Debug.Log(rnds[i]);
+                var data = IngameManager.Instance.Data.SongDataPool[rnds[i]];
 
                 list.Add(new SongData()
                 {
+                    RawData = data,
                     Name = (string)data["name"],
                     Rank = (int)data["rank"],
                     Type = (SongType)data["type"],
                     MaxIdol = (int)data["maxIdol"],
-                    FlavorText = ((string)data["description"]).Replace('@', '\n')
+                    FlavorText = ((string)data["description"]).Replace('@', '\n'),
+                    Cost = RankCostTable[(int)data["rank"]]
                 });
-                IngameManager.Instance.Data.SongDataPool.RemoveAt(rnd);
             }
             return list.ToArray();
+        }
+
+        public void SetAsEarned()
+        {
+            IngameManager.Instance.Data.SongDataPool.Remove(RawData);
         }
 
         public int CalculateAppeal(int vocal, int dance, int visual)

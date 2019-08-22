@@ -51,6 +51,11 @@ namespace Ingame
             {
                 Data.Songs = new List<int>();
                 Data.Idols = new IdolPickGroup(12);
+                while (songVisuals.Count > 0)
+                {
+                    Destroy(songVisuals[0]);
+                    songVisuals.RemoveAt(0);
+                }
                 WindowPanel.SetActive(true);
                 UpdateInfo();
             }
@@ -118,6 +123,16 @@ namespace Ingame
             return res;
         }
 
+        public int CalculateGetMoney(float appeal)
+        {
+            return Mathf.RoundToInt(appeal * 0.07f);
+        }
+
+        public int CalculateFan(float appeal)
+        {
+            return Mathf.RoundToInt(appeal * 0.75f);
+        }
+
         public void StartWork()
         {
             int money = CalculateSpendMoney();
@@ -134,6 +149,36 @@ namespace Ingame
                 ProcessingPanel.text.text = $"음반 작업이 시작되었습니다.\n{Data.ProcessingTurnLeft}달 뒤에 음반이 발매됩니다!";
                 ProcessingPanel.SetActive(true);
             }
+        }
+
+        public (bool, float, int, int, int) ApplySendResultData()
+        {
+            if (Data.IsProcessing)
+            {
+                if (Data.ProcessingTurnLeft == 0)
+                {
+                    float appeal = 0;
+                    int totalMoney = 0, totalFan = 0;
+                    for (int i = 0; i < Data.Songs.Count; i++)
+                    {
+                        var pair = Data.Idols.CalculateAppeal(IngameManager.Instance.Data.Songs[Data.Songs[i]]);
+                        for (int j = 0; j < pair.Item2.Length; j++)
+                        {
+                            IngameManager.Instance.Data.Idols[Data.Idols.IdolIndices[j]].Fan += CalculateFan(pair.Item2[j]);
+                            totalFan += CalculateFan(pair.Item2[j]);
+                        }
+                        appeal += pair.Item1;
+                        totalMoney += CalculateGetMoney(pair.Item1);
+                        IngameManager.Instance.Data.Money += CalculateGetMoney(pair.Item1);
+                    }
+                    Data.IsProcessing = false;
+                    return (true, appeal, totalMoney, totalFan, 0);
+                }
+                else
+                    return (true, 0, 0, 0, Data.ProcessingTurnLeft);
+            }
+            else
+                return (false, 0, 0, 0, 0);
         }
     }
 }

@@ -28,6 +28,21 @@ namespace Idol
         {
             if(Motion != null)
                 Motion.Appear();
+
+            CostText.text = LinkedIdol.Cost.ToString();
+            NameText.text = LinkedIdol.Name;
+            IdolImage.sprite = Resources.Load<Sprite>(LinkedIdol.ImageKey);
+            VocalSlider.value = LinkedIdol.Vocal;
+            VocalText.text = LinkedIdol.Vocal.ToString();
+            DanceSlider.value = LinkedIdol.Dance;
+            DanceText.text = LinkedIdol.Dance.ToString();
+            VisualSlider.value = LinkedIdol.Visual;
+            VisualText.text = LinkedIdol.Visual.ToString();
+            VarietySlider.value = LinkedIdol.Variety;
+            VarietyText.text = LinkedIdol.Variety.ToString();
+            HonorText.text = LinkedIdol.Honor.ToString();
+            FanText.text = LinkedIdol.Fan.ToString();
+            PersonaText.text = IdolData.PersonaStringDic[LinkedIdol.Personality];
         }
 
         public void SetIdol(IdolData data)
@@ -47,7 +62,7 @@ namespace Idol
             VarietyText.text = data.Variety.ToString();
             HonorText.text = data.Honor.ToString();
             FanText.text = data.Fan.ToString();
-            // Personality
+            PersonaText.text = IdolData.PersonaStringDic[LinkedIdol.Personality];
         }
     }
 }

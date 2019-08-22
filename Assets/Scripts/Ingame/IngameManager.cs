@@ -11,8 +11,20 @@ namespace Ingame
     {
         public static IngameManager Instance { get; private set; }
 
+        [Header("Managers")]
+        public TheaterManager Theater;
+        public WorkManager Work;
+        public LessonManager Lesson;
+        public CDManager CD;
+        public ConcertManager Concert;
+        public AuditionManager Audition;
+        public NewSongManager NewSong;
+        public ResultManager Result;
+        public OpeningManager Opening;
+
         [Header("UI Elements")]
         public Text MoneyText;
+        public Text GroupNameText, DateTimeText;
 
         [Header("ETC")]
         public IdolListViewer IdolList;
@@ -26,30 +38,19 @@ namespace Ingame
         {
             Instance = this;
 
-            // Debug 190719
             Data = new IngameData();
             Data.SongDataPool = CSVReader.Read("Data/SongDataTable");
             Data.Idols = new Dictionary<int, IdolData>();
-
-            var idols = IdolData.Generate(20);
-            Debug.Log(idols.Length);
-            for (int i = 0; i < idols.Length; i++)
-            {
-                idols[i].Index = i;
-                Data.Idols.Add(i, idols[i]);
-            }
-            Data.CurrentIdolIndex = 20;
-
-            Data.Songs = SongData.GetAll();
-            Data.Money = 10000;
+            Data.Songs = new Dictionary<int, SongData>();
+            Data.Month = -1;
 
             WorkList = CSVReader.Read("Data/WorkDataTable");
         }
 
         // Start is called before the first frame update
-        void Start()
+        async void Start()
         {
-            // Debug 190719
+            await Opening.ShowOpening();
             foreach (var idol in Data.Idols)
             {
                 IdolPicker.Instance.LoadCard(idol.Value);
@@ -60,18 +61,40 @@ namespace Ingame
                 SongPicker.Instance.LoadCard(song.Value);
                 SongList.LoadCard(song.Value);
             }
+
+            StartNewTurn();
         }
 
-        // Update is called once per frame
+        public void StartNewTurn()
+        {
+            Data.Month++;
+            foreach(var idol in Data.Idols)
+            {
+                idol.Value.IsWorkLessonPicked = false;
+            }
+            Work.CreateWorkDatas();
+            Work.LoadWorkSlots();
+            foreach (var idol in Lesson.Lessons)
+                idol.ResetSlot();
+            if (Data.CDProcess.IsProcessing)
+                Data.CDProcess.ProcessingTurnLeft--;
+            if (Data.ConcertProcess.IsProcessing)
+                Data.ConcertProcess.ProcessingTurnLeft--;
+            Audition.AlreadyHeld = false;
+            NewSong.RefreshList();
+        }
+
         void Update()
         {
             MoneyText.text = Data.Money.ToString();
+            GroupNameText.text = Data.GroupName;
+            DateTimeText.text = $"{Data.Month / 12 + 1}년 {Data.Month % 12 + 1}월";
         }
 
-        public async void IdolPickerTest()
+        public void RunResult()
         {
-            var pickRes = await IdolPicker.Instance.Show(5);
-            Debug.Log(pickRes.ToString());
+            Result.gameObject.SetActive(true);
+            StartCoroutine(Result.ShowResult());
         }
     }
 }

@@ -15,8 +15,10 @@ namespace Ingame
         public WorkData[] Work;
         public IdolPickGroup[] LessonIdols;
         public CDData CDProcess;
+        public ConcertData ConcertProcess;
 
         public string GroupName;
+        public int Month;
         public int Money;
         public int CurrentIdolIndex;
         public int CurrentSongIndex;
@@ -27,6 +29,7 @@ namespace Ingame
             Theater = new TheaterData();
             LessonIdols = new IdolPickGroup[4];
             CDProcess = new CDData();
+            ConcertProcess = new ConcertData();
             CurrentIdolIndex = 0;
             CurrentSongIndex = 0;
         }
