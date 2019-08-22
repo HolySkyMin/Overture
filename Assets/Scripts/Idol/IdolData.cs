@@ -33,7 +33,7 @@ namespace Idol
             {IdolPersonality.Mysterious, "신비함" },
             {IdolPersonality.Frugal, "검소함" },
         };
-        public static readonly int[] PersonaPercentageTable = { 0, 1, 2, 1, 2, 1, 1, 2, 1, 4, 1, 1, 1, 4 };
+        public static readonly int[] PersonaPercentageTable = { 0, 2, 5, 2, 5, 1, 2, 5, 1, 8, 2, 2, 1, 7 };
         public static readonly int[] CostThreshold = { 0, 8, 13, 17, 21, 24, 26, 28, 30, 31, 32, 33, 34, 35, 35, 36, 37, 38, 39, 40 };
 
         public string Name { get { return LastName + " " + FirstName; } }
@@ -82,7 +82,7 @@ namespace Idol
                     Honor = 0,
                     Fan = 0,
                 };
-                int rnd = UnityEngine.Random.Range(1, 18);
+                int rnd = UnityEngine.Random.Range(1, 36);
                 int sum = 0;
                 for (int j = 1; j < 12; j++)
                 {

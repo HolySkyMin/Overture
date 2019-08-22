@@ -21,6 +21,10 @@ namespace Ingame
         {
             Data = IngameManager.Instance.Data.ConcertProcess;
 
+        }
+
+        private void Update()
+        {
             CurMoney.text = IngameManager.Instance.Data.Money.ToString();
             int fanCount = 0;
             foreach (var idol in IngameManager.Instance.Data.Idols)

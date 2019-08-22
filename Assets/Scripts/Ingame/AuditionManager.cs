@@ -31,7 +31,7 @@ namespace Ingame
             }
             if(IngameManager.Instance.Data.Money < REQUIRED_MONEY)
             {
-                ResultPanel.text.text = "오디션을 열 돈이 부족합니다.";
+                ResultPanel.text.text = "오디션을 열 돈이 부족합니다.\n\n오디션을 열려면 돈 300이 필요합니다.";
                 ResultPanel.SetActive(true);
                 return;
             }

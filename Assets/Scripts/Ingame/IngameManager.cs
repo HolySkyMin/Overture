@@ -50,6 +50,8 @@ namespace Ingame
         // Start is called before the first frame update
         async void Start()
         {
+            SoundManager.Instance.PlayIngame();
+
             await Opening.ShowOpening();
             foreach (var idol in Data.Idols)
             {

@@ -24,17 +24,17 @@ namespace Ingame
 
         public int CalculateMoney(float appeal, int coeff)
         {
-            return Mathf.RoundToInt(appeal * 0.15f * coeff);
+            return Mathf.RoundToInt(appeal * 0.3f * coeff);
         }
 
         public int CalculateHonor(float appeal, int coeff)
         {
-            return Mathf.RoundToInt(appeal * 0.05f * coeff);
+            return Mathf.RoundToInt(appeal * 0.1f * coeff);
         }
 
         public int CalculateFan(float appeal, int coeff)
         {
-            return Mathf.RoundToInt(appeal * 0.3f * coeff);
+            return Mathf.RoundToInt(appeal * 0.5f * coeff);
         }
 
         public (int, int, int) ApplySendResultData()
@@ -59,6 +59,7 @@ namespace Ingame
                     }
                 }
             }
+            IngameManager.Instance.Data.Money += totalMoney;
             return (totalMoney, totalHonor, totalFan);
         }
 

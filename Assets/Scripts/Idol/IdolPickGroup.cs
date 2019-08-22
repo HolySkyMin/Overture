@@ -187,8 +187,8 @@ namespace Idol
                         else
                             idolBonus[i] = Mathf.Max(1.0f - 0.05f * (Count - 1), 0.7f);
                         break;
-                    case IdolPersonality.Jolly:         //같이 참여하는 명랑함 아이돌당 자신의 어필 +5%
-                        idolBonus[i] += (personaDicCopy[IdolPersonality.Jolly] - 1) * 0.05f * bonusCoeff[i];
+                    case IdolPersonality.Jolly:         //같이 참여하는 명랑함 아이돌당 자신의 어필 +2%
+                        idolBonus[i] += (personaDicCopy[IdolPersonality.Jolly] - 1) * 0.02f * bonusCoeff[i];
                         break;
                     case IdolPersonality.Quirky:        //자신의 어필 랜덤으로 -5% ~ 5%
                         idolBonus[i] += 0.01f * bonusCoeff[i] * Random.Range(-5f, 5f);
@@ -208,7 +208,7 @@ namespace Idol
                         if (personaDicCopy[IdolPersonality.Relaxed] == 1)
                             idolBonus[i] += 0.1f * bonusCoeff[i];
                         break;
-                    case IdolPersonality.Focus:         //같이 참여하는 모든 아이돌의 성격이 집중함이면 총 어필 +5%
+                    case IdolPersonality.Focus:         //같이 참여하는 모든 아이돌의 성격이 집중함이면 총 어필 +10%
                         if (personaDicCopy[IdolPersonality.Focus] == Count)
                         {
                             applyFocus = true;
@@ -235,7 +235,7 @@ namespace Idol
             if (applyBold)
                 totalBonus += 0.1f * boldMaxBonusCoeff;
             if (applyFocus)
-                totalBonus += 0.05f * focusMaxBonusCoeff;
+                totalBonus += 0.1f * focusMaxBonusCoeff;
 
             // 어필을 계산한다.
             float totalAppeal = 0;

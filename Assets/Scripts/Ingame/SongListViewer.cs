@@ -19,6 +19,7 @@ namespace Ingame
         {
             var holderObj = Instantiate(CardHolder);
             holderObj.GetComponent<RectTransform>().SetParent(CardParent);
+            holderObj.transform.localScale = Vector3.one;
             holderObj.SetActive(true);
 
             var cardObj = Instantiate(Resources.Load<GameObject>("Prefabs/SongCard_SongList"));

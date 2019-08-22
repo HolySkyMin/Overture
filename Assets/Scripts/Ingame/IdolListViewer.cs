@@ -19,6 +19,7 @@ namespace Ingame
         {
             var holderObj = Instantiate(CardHolder);
             holderObj.GetComponent<RectTransform>().SetParent(CardParent);
+            holderObj.transform.localScale = Vector3.one;
             holderObj.SetActive(true);
 
             var cardObj = Instantiate(Resources.Load<GameObject>("Prefabs/IdolCard_IdolList"));
@@ -52,6 +53,24 @@ namespace Ingame
         {
             InfoCard.SetIdol(data);
             MoreInfoPanel.SetActive(true);
+        }
+
+        public void SellSelectedIdol()
+        {
+            var data = InfoCard.LinkedIdol;
+
+            for (int i = 0; i < cards.Count; i++)
+            {
+                if (cards[i].GetComponentInChildren<IdolCard>().LinkedIdol == data)
+                {
+                    Destroy(cards[i]);
+                    cards.RemoveAt(i);
+                    break;
+                }
+            }
+
+            IdolPicker.Instance.RemoveCard(data);
+            IngameManager.Instance.Data.Idols.Remove(data.Index);
         }
     }
 }

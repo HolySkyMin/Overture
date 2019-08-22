@@ -23,6 +23,7 @@ namespace Ingame
             await new WaitUntil(() => nextClicked);
             nextClicked = false;
             IngameManager.Instance.Data.GroupName = NameInput.text;
+            Panel2.transform.SetAsLastSibling();
             await Panel1.Disappear_C();
             await Panel2.Appear_C();
             await new WaitUntil(() => nextClicked);
@@ -41,7 +42,7 @@ namespace Ingame
                 IngameManager.Instance.Data.Songs.Add(IngameManager.Instance.Data.CurrentSongIndex++, song);
                 song.SetAsEarned();
             }
-            IngameManager.Instance.Data.Money += 50;
+            IngameManager.Instance.Data.Money += 70;
             await Panel3.Appear_C();
             await new WaitUntil(() => nextClicked);
             nextClicked = false;

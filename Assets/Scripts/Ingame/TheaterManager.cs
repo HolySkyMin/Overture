@@ -124,12 +124,12 @@ namespace Ingame
 
         public int CalculateMoney(float appeal)
         {
-            return Mathf.RoundToInt(appeal * 0.01f);
+            return Mathf.RoundToInt(appeal * 0.02f);
         }
 
         public int CalculateFan(float appeal)
         {
-            return Mathf.RoundToInt(appeal * 0.1f);
+            return Mathf.RoundToInt(appeal * 0.15f);
         }
 
         public void SaveTheater()

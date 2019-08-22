@@ -39,7 +39,7 @@ namespace Ingame
                 {
                     IngameManager.Instance.Data.Money -= SpendMoneyTable[IngameManager.Instance.Data.Idols[Lessons[1].Idols.IdolIndices[i]].Dance];
                     IngameManager.Instance.Data.Idols[Lessons[1].Idols.IdolIndices[i]].Dance++;
-                    totalMoney += SpendMoneyTable[IngameManager.Instance.Data.Idols[Lessons[0].Idols.IdolIndices[i]].Dance];
+                    totalMoney += SpendMoneyTable[IngameManager.Instance.Data.Idols[Lessons[1].Idols.IdolIndices[i]].Dance];
                 }
             }
             for (int i = 0; i < Lessons[2].Idols.Capacity; i++)
@@ -48,7 +48,7 @@ namespace Ingame
                 {
                     IngameManager.Instance.Data.Money -= SpendMoneyTable[IngameManager.Instance.Data.Idols[Lessons[2].Idols.IdolIndices[i]].Visual];
                     IngameManager.Instance.Data.Idols[Lessons[2].Idols.IdolIndices[i]].Visual++;
-                    totalMoney += SpendMoneyTable[IngameManager.Instance.Data.Idols[Lessons[0].Idols.IdolIndices[i]].Visual];
+                    totalMoney += SpendMoneyTable[IngameManager.Instance.Data.Idols[Lessons[2].Idols.IdolIndices[i]].Visual];
                 }
             }
             for (int i = 0; i < Lessons[3].Idols.Capacity; i++)
@@ -57,7 +57,7 @@ namespace Ingame
                 {
                     IngameManager.Instance.Data.Money -= SpendMoneyTable[IngameManager.Instance.Data.Idols[Lessons[3].Idols.IdolIndices[i]].Variety];
                     IngameManager.Instance.Data.Idols[Lessons[3].Idols.IdolIndices[i]].Variety++;
-                    totalMoney += SpendMoneyTable[IngameManager.Instance.Data.Idols[Lessons[0].Idols.IdolIndices[i]].Variety];
+                    totalMoney += SpendMoneyTable[IngameManager.Instance.Data.Idols[Lessons[3].Idols.IdolIndices[i]].Variety];
                 }
             }
             var idolCounts = new List<int>();

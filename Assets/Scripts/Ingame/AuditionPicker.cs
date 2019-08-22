@@ -32,6 +32,8 @@ namespace Ingame
 
         public async Task<List<IdolData>> Show(int amount, int forcePickAmount = 0)
         {
+            PickCompleted = false;
+            ForcePickExists = false;
             pickedIdols = new List<IdolData>();
             while(cards.Count > 0)
             {
@@ -54,6 +56,7 @@ namespace Ingame
             {
                 var holderObj = Instantiate(CardHolder);
                 holderObj.transform.SetParent(CardParent);
+                holderObj.transform.localScale = Vector3.one;
                 holderObj.SetActive(true);
 
                 var cardObj = Instantiate(Resources.Load<GameObject>("Prefabs/IdolCard_Audition"));

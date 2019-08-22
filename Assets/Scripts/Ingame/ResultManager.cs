@@ -133,6 +133,12 @@ namespace Ingame
             yield return new WaitUntil(() => nextClicked);
             nextClicked = false;
             yield return IdolPay.Disappear_C();
+
+            if (IngameManager.Instance.Data.Money < 0)
+                SceneChanger.Instance.ChangeScene("GameOver");
+
+            if (ConcertData.Item4 == "돔 투어" && ConcertData.Item5 == true)
+                SceneChanger.Instance.ChangeScene("GameClear");
         }
 
         public void NextBtnClick()
